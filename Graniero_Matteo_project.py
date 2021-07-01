@@ -1,136 +1,169 @@
-######## Problem 1 ##########
+import pandas as pd
+from sklearn import preprocessing
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn import metrics
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+import seaborn as sns
+from matplotlib import pyplot as plt
+from sklearn.svm import SVC
+from sklearn.linear_model import Perceptron
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
 
-class Node:
+df = pd.read_csv('http://kdd.ics.uci.edu/databases/kddcup99/kddcup.data_10_percent.gz', compression='gzip', header=0, sep=',', quotechar='"')
 
-    def __init__(self, element):
-        self.element = element
-        self.next = None
+df
 
-    def getElement(self):
-        return self.element
+header = df.head()
 
-    def getNext(self):
-        return self.next
+header
 
-    def setNext(self, n):
-        self.next = n
+# The header row with the feature names is missing in the dataset. 
+# to insert feature names, we extract them from here: http://kdd.ics.uci.edu/databases/kddcup99/task.html
 
-    def __str__(self):
-        return str(self.element)
+df_names = pd.read_csv('http://kdd.ics.uci.edu/databases/kddcup99/kddcup.names')
 
-class Floyd:
+df_names
 
-    def __init__(self):
-        self.head = None
+# extract the feature names from this dataframe into a list 'feature_names'
 
-    def detectLoop(self):
-        slow_tortoise = fast_hare = self.head
+feature_names = df_names['back'].str.replace(r":.*","").tolist()
+feature_names.append('outcome')
+feature_names
 
-        while(slow_tortoise and fast_hare and fast_hare.next):
-            slow_tortoise = slow_tortoise.next
-            fast_hare = fast_hare.next.next
-         
-            if slow_tortoise == fast_hare:
-                self.removeLoop(slow_tortoise)
+# append this list as a header to the dataset.
 
-                return 'Loop present'
+df.columns = feature_names
+df
 
-        return 'No loop present'
+# As per this article about this dataset: (https://www.ee.ryerson.ca/~bagheri/papers/cisda.pdf), it is a good idea to check for duplicate records
+# check and remove any duplicate rows:
 
-    def removeLoop(self, loop):
-        ptr1 = self.head
+df.drop_duplicates(keep='first', inplace = True)
+df
 
-        while(1):
-            ptr2 = loop
+# Check if theres any missing (NaN) values that need to be imputed
 
-            while(ptr2.next != loop and ptr2.next != ptr1):
-                ptr2 = ptr2.next
+df.isnull().values.any()
 
-            if ptr2.next == ptr1:
-                break
+# we extract the outcome feature as y which is 1D array having encoded categorical values as outcomes
 
-            ptr1 = ptr1.next
+lee = preprocessing.LabelEncoder()
+y = lee.fit_transform(df['outcome'])
 
-        ptr2.next = None
+# Here we will extract the labels of outcome feature into a list to be used later in confusion matrices
 
+y_temp = pd.get_dummies(df['outcome'])
+output_labels = list(y_temp.columns)
 
-    def __str__(self):
-        res = '('
-        cursor = self.head
-        
-        while cursor:
-            res = res + str(cursor.getElement())
-            if cursor != self.tail:
-                res = res + ',' 
-            cursor = cursor.getNext()
-            
-        res = res + ')'
-        return res 
+df.dtypes
 
-######### Problem 2 ##########
+#Encode the object type features (protocol_type, service, flag)
+df = pd.get_dummies(df.iloc[:, 0:41])
+df
 
-class RoundRobin():
-    
-    def __init__(self,quantum):
-        self.pArrival=[]
-        self.pTime=[]
-        self.quantum=quantum
-        self.time=0
+# Standardize the features
 
-    def addProcess(self,arrival,exeTime):
-        
-        if len(self.pArrival)==0:
-            self.pArrival.append(arrival)
-            self.pTime.append(exeTime)
-            
-        else:
-            i=0
-            while(i<len(self.pArrival)):
-                if arrival<self.pArrival[i]:
-                    break
-                i+=1
-            self.pArrival.insert(i,arrival)
-            self.pTime.append(exeTime)
+scaler = StandardScaler()
 
-    def ProcessAll(self):
-        
-        print(self.pArrival,self.pTime)
-        
-        while(self.pTime):
-            
-            if self.pTime[0]>=self.quantum:
-                a=self.pTime.pop(0)
-                if a>0:
-                    self.pTime.append(a-self.quantum)
-                    
-            elif self.pTime[0]<self.quantum:
-                a=self.pTime.pop(0)
-                rest=self.quantum-a
-                while(rest and self.pTime):
-                    if rest<=self.pTime[0]:
-                        self.pTime[0]=self.pTime[0]-rest
-                        rest=0
-                    else:
-                        rest=rest-self.pTime.pop(0)
-                        
-            self.time+=self.quantum
-            print(self.pTime)
-            
-        self.pArrival=[]
-        
-        print(self.time,self.pArrival)
-        
-if __name__=="__main__":
+df = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
+df
 
-    ProcessTable = [['P0',0,250],
-                   ["P1",50,170],
-                   ["P2",130,75],
-                   ["P3",190,100],
-                   ["P4",210,130],
-                   ["P5",350,50]]
-    RR=RoundRobin(100)
-    
-    for i in range(len(ProcessTable)):
-        RR.addProcess(ProcessTable[i][1],ProcessTable[i][2])
-        
-    RR.ProcessAll()
+x = df.values
+
+#Data split into test train
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=4)
+
+# KNN Classifier
+
+knn = KNeighborsClassifier(n_neighbors=3, n_jobs=-1)
+knn.fit(x_train, y_train)
+y_predictKNN = knn.predict(x_test)
+
+print('Accuracy of KNN Classifier: ' + str(metrics.accuracy_score(y_test, y_predictKNN)))
+
+# KNN Confusion matrix:
+
+labels = output_labels
+
+plt.figure(figsize=(12,12))
+sns.set(font_scale=.8)
+sns.heatmap(metrics.confusion_matrix(y_test, y_predictKNN), annot=True, fmt='d', xticklabels=labels, yticklabels=labels)
+plt.title('K-Nearest Neighbour confusion matrix')
+plt.xlabel('Predicted outcome')
+plt.ylabel('Actual outcome')
+plt.show()
+
+# Support Vector Machine SVM
+
+svc=SVC()
+svc.fit(x_train,y_train)
+y_predictSVM =svc.predict(x_test)
+
+print('Accuracy of SVM model: ' + str(metrics.accuracy_score(y_test, y_predictSVM)))
+
+# SVM confusion matrix
+
+plt.figure(figsize=(12,12))
+sns.set(font_scale=.8)
+sns.heatmap(metrics.confusion_matrix(y_test, y_predictSVM), annot=True, fmt='d', xticklabels=labels, yticklabels=labels)
+plt.title('Support Vector Machine confusion matrix')
+plt.xlabel('Predicted outcome')
+plt.ylabel('Actual outcome')
+plt.show()
+
+# Perceptron
+
+ppn = Perceptron(max_iter = 40, eta0=0.1, random_state = 1)
+ppn.fit(x_train, y_train)
+y_predictPNN = ppn.predict(x_test)
+
+print('Accuracy of Perceptron model: ' + str(metrics.accuracy_score(y_test, y_predictPNN)))
+
+# Perceptron confusion matrix
+plt.figure(figsize=(12,12))
+sns.set(font_scale=.8)
+sns.heatmap(metrics.confusion_matrix(y_test, y_predictPNN), annot=True, fmt='d', xticklabels=labels, yticklabels=labels)
+plt.title('Perceptron confusion matrix')
+plt.xlabel('Predicted outcome')
+plt.ylabel('Actual outcome')
+plt.show()
+
+# Decision Tree
+
+dtc = DecisionTreeClassifier(criterion='gini', max_depth=3, random_state=0)
+dtc.fit(x_train, y_train)
+y_predictDTC = dtc.predict(x_test)
+
+print('Accuracy of Decision Tree model: ' + str(metrics.accuracy_score(y_test, y_predictDTC)))
+
+# Decision Tree confusion matrix
+
+plt.figure(figsize=(12,12))
+sns.set(font_scale=.8)
+sns.heatmap(metrics.confusion_matrix(y_test, y_predictDTC), annot=True, fmt='d', xticklabels=labels, yticklabels=labels)
+plt.title('Decision Tree confusion matrix')
+plt.xlabel('Predicted outcome')
+plt.ylabel('Actual outcome')
+plt.show()
+
+# Sci-kit learn's Logistic regression
+
+lr = LogisticRegression(n_jobs=-1, solver='saga', tol = 0.1)
+lr.fit(x_train, y_train)
+y_predictLR = lr.predict(x_test)
+
+print('Accuracy of Logistic Regression model: ' + str(metrics.accuracy_score(y_test, y_predictLR)))
+
+# Logistic Regression confusion matrix
+
+plt.figure(figsize=(12,12))
+sns.set(font_scale=.8)
+sns.heatmap(metrics.confusion_matrix(y_test, y_predictLR), annot=True, fmt='d', xticklabels=labels, yticklabels=labels)
+plt.title('Logistic Regression confusion matrix')
+plt.xlabel('Predicted outcome')
+plt.ylabel('Actual outcome')
+plt.show()

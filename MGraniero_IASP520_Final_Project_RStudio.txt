@@ -1,0 +1,100 @@
+------------------------- R ------------------------------------
+
+spine_dataset = read.csv('C:\\Users\\Matteo\\Desktop\\IASP 520\\FINAL PROJECT\\column_2C.csv')
+
+head(spine_dataset)
+
+summary(spine_dataset)
+
+##################### gives boxplot distribution of pelvic incidence between abnormal and normal
+
+boxplot(spine_dataset[,1:1]~spine_dataset[,7:7],
+main="Distribution of Pelvic Incidence by Class",ylab="Pelvic Incidence",xlab="class",col=c("red","blue"))
+
+##################### gives boxplot distribution of pelvic tilt between abnormal and normal
+
+boxplot(spine_dataset[,2:2]~spine_dataset[,7:7],
+main="Distribution of Pelvic Tilt by Class",ylab="Pelvic Tilt",xlab="class",col=c("red","blue"))
+
+##################### gives boxplot distribution of lumbar lordosis angle between abnormal and normal
+
+boxplot(spine_dataset[,3:3]~spine_dataset[,7:7],
+main="Distribution of Lumbar Lordosis Angle by Class",ylab="Lumbar Lordosis Angle",xlab="class",col=c("red","blue"))
+
+##################### gives boxplot distribution of sacral slope between abnormal and normal
+
+boxplot(spine_dataset[,4:4]~spine_dataset[,7:7],
+main="Distribution of Sacral Slope by Class",ylab="Sacral Slope",xlab="class",col=c("red","blue"))
+
+##################### gives boxplot distribution of pelvic radius between abnormal and normal
+
+boxplot(spine_dataset[,5:5]~spine_dataset[,7:7],
+main="Distribution of Pelvic Radius by Class",ylab="Pelvic Radius",xlab="class",col=c("red","blue"))
+
+##################### gives boxplot distribution of Degree Spondylolisthesis between abnormal and normal
+# extreme outliers were excluded to give better view of concentration of majority of data
+
+boxplot(spine_dataset[,6:6]~spine_dataset[,7:7],
+main="Distribution of Degree Spondylolisthesis by Class",ylab="Degree Spondylolisthesis",xlab="class",col=c("red","blue"),ylim=c(-10,150))
+
+##################### creates pairwise scatterplot of all variables in data set
+
+pairs(spine_dataset[,1:6])
+
+####################### pairwise matrix with regression lines
+
+panel.lm <- function (x, y,  pch = par("pch"), col.lm = "red",  ...) {   
+  ymin <- min(y)
+  ymax <- max(y)
+  xmin <- min(x)
+  xmax <- max(x)
+  ylim <- c(min(ymin,xmin),max(ymax,xmax))
+  xlim <- ylim
+  points(x, y, pch = pch,ylim = ylim, xlim= xlim,...)
+  ok <- is.finite(x) & is.finite(y)
+  if (any(ok)) 
+    abline(lm(y[ok]~ x[ok]), 
+           col = col.lm, ...)
+}
+
+pairs(spine_dataset[,1:6],panel=panel.lm)
+
+##################### scatter plot w/ regression line pelvic incidence vs degree spondylolisthesis
+
+lm(spine_dataset[,6:6]~spine_dataset[,1:1])
+
+plot(spine_dataset[,1:1],spine_dataset[,6:6],xlab="pelvic_incidence",ylab="degree_spondylolisthesis",ylim=c(-10,160))
+
+abline(a=-57.905, b=1.392, col="red")
+
+##################### scatter plot w/ regression line pelvic tilt vs degree spondylolisthesis
+
+lm(spine_dataset[,6:6]~spine_dataset[,2:2])
+
+plot(spine_dataset[,2:2],spine_dataset[,6:6],xlab="pelvic_tilt",ylab="degree_spondylolisthesis",ylim=c(-10,160))
+
+abline(a=0.1037, b=1.4931, col="red")
+
+##################### scatter plot w/ regression line lumbar lordosis angle vs degree spondylolisthesis
+
+lm(spine_dataset[,6:6]~spine_dataset[,3:3])
+
+plot(spine_dataset[,3:3],spine_dataset[,6:6],xlab="lumbar_lordosis_angle",ylab="degree_spondylolisthesis",ylim=c(-10,160))
+
+abline(a=-29.80, b=1.08, col="red")
+
+##################### scatter plot w/ regression line sacral slope vs degree spondylolisthesis
+
+lm(spine_dataset[,6:6]~spine_dataset[,4:4])
+
+plot(spine_dataset[,4:4],spine_dataset[,6:6],xlab="sacral_slope",ylab="degree_spondylolisthesis",xlim=c(0,90),ylim=c(-10,160))
+
+abline(a=-36.629, b=1.465, col="red")
+
+##################### scatter plot w/ regression line pelvic radius vs degree spondylolisthesis
+
+lm(spine_dataset[,6:6]~spine_dataset[,5:5])
+
+plot(spine_dataset[,5:5],spine_dataset[,6:6],xlab="pelvic_radius",ylab="degree_spondylolisthesis",ylim=c(-10,145))
+
+abline(a=34.96518, b=-0.07351, col="red")

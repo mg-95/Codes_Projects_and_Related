@@ -1,99 +1,117 @@
-#######   Question 1   #######
+####### Problem 1 ########
 
-Integer = int(input("Enter an integer: "))
+import numpy as np
 
-if Integer % 2 == 0:
-    print("Your integer is even")
-else:
-    print("Your integer is odd")
+####### Problem 2 ########
 
-#######   Question 2   #######
-
-Seconds = int(input("Enter number of seconds: "))
-
-Hours = (1/3600)*Seconds
-
-Minutes = (Hours - (int(Hours)))*60
-
-Seconds = (Minutes - (int(Minutes)))*60
-
-print(int(Hours))
-print(int(Minutes))
-print(int(Seconds))
-
-#######   Question 3   #######
-
-Letter = input("Enter a letter: ")
-
-if Letter in list(['a','A','e','E','i','I','o','O','u','U']):
-    print("Your letter is a vowel")
-else:
-    print("Your letter is a consonant")
-
-#######   Question 4   #######
-
-Number = int(input("Enter a positive number or zero: "))
-
-while Number < 0:
-    Number = int(input("Enter a positive number or zero: "))
-    if Number >= 0: break
-
-Sum = 0
-
-for a in range(Number + 1):
-    factorial = 1
-
-    for b in range(1, a+1):
-        factorial = factorial * b
-
-    Sum = factorial + Sum
-
-    print(str(a) +'!', end = ' ')
-    if a != Number:
-            print('+', end = ' ')
-
-print('= ' + str(Sum))
-
-#######   Question 5   #######
-
-number = int(input('Please enter an even number: '))
-
-EvenNumbers = []
-
-while number % 2 == 0:
-
-    EvenNumbers.append(number)
-
-    number = int(input('Please enter an even number or odd to stop: '))
+def Problem2():
     
-    if number % 2 != 0: break
+    array = np.array(list(range(10)))
 
-avg = (sum(EvenNumbers))/(len(EvenNumbers))
+    print(array.size)
 
-print(avg)
+Problem2()
 
-#######   Question 6   #######
+####### Problem 3 ########
 
-myWordBank = []
+def Problem3():
 
-for a in range(5):
+    myVector = [5] * 10
+    myVector[4] = 10
 
-    word = input('type a word: ')
+    print(myVector)
+    
+Problem3()
 
-    if 'A' in word or 'a' in word:
+####### Problem 4 ########
 
-        myWordBank.append(word)
+def Problem4():
 
-print(myWordBank)
+    array = np.array(list(range(10, 51)))
 
-#######   Question 7   #######
+    print(array)
 
-phrase = list(input("Please enter a sentence: "))
+Problem4()
 
-phrase.sort()
+####### Problem 5 ########
 
-x = phrase[-1]
+def Problem5():
 
-print("The last letter in the alphabetically sorted string is", x)
+    array = np.array(list(range(50, 9, -1)))
 
+    print(array)
 
+Problem5()
+    
+####### Problem 6 ########
+
+def Problem6():
+
+    array = np.zeros((5,5))
+
+    print(array)
+
+Problem6()
+
+####### Problem 7 ########
+
+def Problem7():
+
+    array = np.diag([100,200,300,400,500])
+
+    print(array)
+
+Problem7()
+
+####### Problem 8 ########
+
+def Problem8():
+
+    array = np.random.random((4,3,2))
+
+    print(array)
+
+Problem8()
+
+####### Problem 9 ########
+
+def Problem9():
+
+    array = np.random.random((4,3,2))
+
+    myArray = (array / 2) + 0.5
+
+    print(myArray)
+    
+Problem9()
+
+####### Problem 10 #######
+
+def Problem10():
+    
+    array = np.array((3,4))
+
+    myArray = list(map(lambda x: x * i, array[i][i]))
+
+    print(myArray)
+
+Problem10()
+
+####### Problem 11 #######
+
+def Problem11():
+
+    array1 = np.random.randint((2,3))
+    array2 = np.random.randint((2,3))
+
+    arrayAdd = np.add(array1,array2)
+    
+    arraySub = np.subtract(array1,array2)
+
+    arrayMul = np.multiply(array1,array2)
+
+    arrayDiv = np.divide(array1,array2)
+
+    print(array1,array2,arrayAdd,arraySub,arrayMul,arrayDiv)
+
+Problem11()
